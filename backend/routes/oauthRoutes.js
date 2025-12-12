@@ -2,11 +2,11 @@ const router = require('express').Router();
 const passport = require('passport');
 const jwt = require("jsonwebtoken")
 
-router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], prompt: "select_account" }));
 
 router.get('/google/callback',
   passport.authenticate('google', { failureRedirect: '/login', session: false }),
-  (req, res) => {
+  async(req, res) => {
     try {
       const user = req.user
 
@@ -20,10 +20,12 @@ router.get('/google/callback',
         path: '/'
       })
 
-      res.status(200).json({ success: true, message: "Login Successfull", user, accessToken })
+      user.refreshToken = refreshToken
+      await user.save()
+      res.redirect(`http://localhost:5173/oauth/success?accessToken=${accessToken}`);
 
     } catch (error) {
-      res.status(500).json({ success: false, message: "Internal server error" })
+      res.redirect("http://localhost:5173/login");
     }
 
     // // successful login

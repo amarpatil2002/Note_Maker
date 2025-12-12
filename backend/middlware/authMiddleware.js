@@ -8,12 +8,11 @@ const verifyToken = (req, res, next) => {
         if (!token) {
             return res.status(401).json({ success: false, message: "No token provided" });
         }
-
         // console.log(token);
         // Add your token verification logic here
         jwt.verify(token, process.env.JWT_ACCESS_SECRETE_KEY, (error, decoded) => {
             if (error) {
-                if (error.name === "TokenExpiredError") {
+                if (error.name === "TokenExpiredError") {   
                     return res.status(401).json({ success: false, message: "Token expired" })
                 }
                 return res.status(401).json({ success: false, message: "Invalid token" })
