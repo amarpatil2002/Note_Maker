@@ -11,11 +11,13 @@ function OAuthLogin() {
         const accessToken = searchParams.get("accessToken")
 
         if(!accessToken){
-            navigate('/login')
+          return navigate('/login')
         }
 
         localStorage.setItem("accessToken" , accessToken)
-        navigate('/dashboard')
+          // Notify app about new access token so it can fetch profile / set user
+          window.dispatchEvent(new Event('authLogin'));
+          navigate('/dashboard')
 
     } , [])
 

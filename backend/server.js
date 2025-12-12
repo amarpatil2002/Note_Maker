@@ -4,7 +4,7 @@ const connectDB = require('./config/db')
 const authRouter = require('./routes/authRoutes')
 const oauthRouter = require('./routes/oauthRoutes')
 require('dotenv').config();
-const cookie = require("cookie-parser")
+const cookieParser = require("cookie-parser")
 const passport = require("passport")
 const session = require('express-session');
 //Important for OAuth login
@@ -18,7 +18,7 @@ app.use(cors({
     credentials:true
 }))
 app.use(express.json())
-app.use(cookie())
+app.use(cookieParser())
 
 
 // OAuth login

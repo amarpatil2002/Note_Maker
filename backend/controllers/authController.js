@@ -10,8 +10,8 @@ exports.registerUser = async (req, res) => {
             return res.status(400).json({ success: false, message: "All fields are required" })
         }
 
-        const existingUser = await User.findOne({ email })
-        if (existingUser) {
+        const user = await User.findOne({ email })
+        if (user) {
             return res.status(400).json({ success: false, message: "Email already registered" })
         }
 
@@ -31,28 +31,35 @@ exports.loginUser = async (req, res) => {
     try {
         const { email, password } = req.body
 
+        // console.log(email,password);
         if (!email || !password) {
             return res.status(400).json({ success: false, message: "All fields are required" })
         }
 
-        const existingUser = await User.findOne({ email })
+        const user = await User.findOne({ email })
 
-        if (!existingUser) {
+        if (!user) {
             return res.status(404).json({ success: false, message: "User not found" })
         }
 
-        const isMatch = await bcrypt.compare(password, existingUser.password)
+        if(user.loginType === "google"){
+            return res.status(400).json({success:false,message:"you can login using gmail"})
+        }
+
+       // console.log(user);
+        const isMatch = await bcrypt.compare(password, user.password)
 
         if (!isMatch) {
             return res.status(400).json({ success: false, message: "Invalid credentials" })
         }
 
-        const accessToken = jwt.sign({ id: existingUser.id, email: existingUser.email }, process.env.JWT_ACCESS_SECRETE_KEY, { expiresIn: "1m" })
-        const refreshToken = jwt.sign({ id: existingUser.id, email: existingUser.email }, process.env.JWT_REFRESH_SECRETE_KEY, { expiresIn: "5m" })
+        const accessToken = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_ACCESS_SECRETE_KEY, { expiresIn: "1m" })
+        const refreshToken = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_REFRESH_SECRETE_KEY, { expiresIn: "5m" })
 
-        existingUser.refreshToken = refreshToken
-        await existingUser.save()
+        user.refreshToken = refreshToken
+        await user.save()
 
+        // console.log(user);
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
             secure: false,
@@ -60,7 +67,7 @@ exports.loginUser = async (req, res) => {
             path: "/"
         })
 
-        res.status(200).json({ success: true, message: "Login successfully", existingUser, accessToken, refreshToken })
+        res.status(200).json({ success: true, message: "Login successfully", user, accessToken })
 
     } catch (error) {
         console.log(error);
@@ -76,16 +83,16 @@ exports.refreshToken = async (req, res) => {
         if (!token) {
             return res.status(401).json({ success: false, message: "refresh token not found" })
         }
-        
-        // const dbToken = await User.findOne({ refreshToken: token });
-        // if (!dbToken) {
-        //     return res.status(400).status({ success: false, message: "refresh token is invalid" })
-        // }
+
+        const userRecord = await User.findOne({ refreshToken: token });
+        if (!userRecord) {
+            return res.status(400).status({ success: false, message: "refresh token is invalid" })
+        }
 
         jwt.verify(token, process.env.JWT_REFRESH_SECRETE_KEY, async(error, user) => {
             if (error) {
-                user.refreshToken = null
-                await user.save()
+                userRecord.refreshToken = null
+                await userRecord.save()
 
                 res.clearCookie("refreshToken" , {
                     httpOnly:true,

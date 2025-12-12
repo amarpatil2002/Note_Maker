@@ -6,6 +6,7 @@ const userSchema = mongoose.Schema({
     password: { type: String },
     googleId: { type: String, unique: true, sparse: true },
     avatar: { type: String },
+    loginType:{ type: String,enum:["normal","google"],default:"normal"},
     refreshToken: { type: String }
 }, { timestamps: true })
 

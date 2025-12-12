@@ -2,7 +2,7 @@ const router = require('express').Router();
 const passport = require('passport');
 const jwt = require("jsonwebtoken")
 
-router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], prompt: "select_account" }));
+router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 router.get('/google/callback',
   passport.authenticate('google', { failureRedirect: '/login', session: false }),
@@ -21,6 +21,7 @@ router.get('/google/callback',
       })
 
       user.refreshToken = refreshToken
+      user.loginType = "google"
       await user.save()
       res.redirect(`http://localhost:5173/oauth/success?accessToken=${accessToken}`);
 

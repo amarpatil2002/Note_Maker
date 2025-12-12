@@ -5,6 +5,14 @@ const api = axios.create({
   withCredentials: true,
 });
 
+// let accessToken = null
+export const setAccessToken = (token) => {
+  localStorage.setItem("accessToken", token);
+};
+export const clearAccessToken = () => {
+  localStorage.removeItem("accessToken");
+};
+
 // Attach access token to every request
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("accessToken");
@@ -20,11 +28,21 @@ api.interceptors.response.use(
   async (error) => {
     const original = error.config;
 
+    // Prevent recursion on refresh-token endpoint
+    if (original.url.includes("refresh-token")) {
+      return Promise.reject(error);
+    }
+
     // If token expired (401) and retry not done
     if (error.response?.status === 401 && !original._retry) {
       original._retry = true;
 
       try {
+        console.log(
+          "Axios interceptor: token expired for",
+          original.url,
+          "-> attempting refresh"
+        );
         // Call refresh-token API
         const res = await axios.post(
           "http://localhost:4000/api/auth/refresh-token",
@@ -36,17 +54,27 @@ api.interceptors.response.use(
 
         // Save new access token
         localStorage.setItem("accessToken", newAccessToken);
+        console.log(
+          "Axios interceptor: refresh successful, new access token set"
+        );
 
         // Update headers for retry
-        api.defaults.headers.common["Authorization"] = `Bearer ${newAccessToken}`;
+        api.defaults.headers.common[
+          "Authorization"
+        ] = `Bearer ${newAccessToken}`;
         original.headers["Authorization"] = `Bearer ${newAccessToken}`;
 
         // retry original request
         return api(original);
       } catch (err) {
-        console.log("Refresh token failed");
+        console.log(
+          "Refresh token failed",
+          err?.response?.status,
+          original.url
+        );
         localStorage.removeItem("accessToken");
-        window.location.href = "/login"; // force logout
+        // dispatch a logout event for centralized handling
+        window.dispatchEvent(new Event("authLogout"));
       }
     }
 
