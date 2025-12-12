@@ -33,12 +33,14 @@ function Register() {
       // OR
 
       const res = await register(formData)
-      alert(res.data.message)
+      // alert(res.data.message)
+       toast.success(res.data.message)
       navigate('/login')
 
     } catch (error) {
       // console.log(error.response.data.message);
       alert(error.response.data.message)
+       toast.error(error.response.data.message)
     }
   }
 

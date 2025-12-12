@@ -1,5 +1,6 @@
 import { useState, createContext, useEffect } from "react";
 import api, { setAccessToken, clearAccessToken } from "../api/axios";
+import { toast } from "react-toastify";
 
 export const AuthContext = createContext({
   user: null,
@@ -45,8 +46,16 @@ export const AuthContextProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      return await api.post("/logout");
-      // console.log(res);
+      // If user signed in via Google, attempt to revoke token at provider
+      if (user?.googleId) {
+        try {
+          await api.post('/revoke-google')
+        } catch (err) {
+          console.log('revoke-google error', err?.response?.data || err.message)
+        }
+      }
+      const res = await api.post("/logout");
+      toast.success(res.data.message)
     } finally {
       clearAccessToken();
       setUser(null);

@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import api from "../api/axios";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../Context/AuthContext";
+import { toast } from "react-toastify";
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -34,10 +35,12 @@ function Login() {
 
       //production grade login using context API
       const res = await login(formData);
-      alert(res.data.message);
+      // alert(res.data.message);
+      toast.success(res.data.message)
       navigate("/dashboard");
     } catch (error) {
-      alert(error.response.data.message);
+      // alert(error.response.data.message);
+      toast.error(error.response.data.message)
     }
   };
 

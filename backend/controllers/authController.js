@@ -1,6 +1,8 @@
 const jwt = require("jsonwebtoken")
 const bcrypt = require("bcrypt")
 const User = require("../models/userAuthModel")
+const https = require('https')
+const querystring = require('querystring')
 
 exports.registerUser = async (req, res) => {
     try {
@@ -128,6 +130,69 @@ exports.logout = async (req, res) => {
     } catch (error) {
         console.log(error);
         res.status(500).json({ success: false, message: "Internal server error" })
+    }
+}
+
+exports.revokeGoogle = async (req, res) => {
+    try {
+        // Try to identify user: prefer req.user (access token), otherwise use refresh cookie
+        let userRecord = null;
+        if (req.user?.id) {
+            userRecord = await User.findById(req.user.id);
+        } else if (req.cookies?.refreshToken) {
+            userRecord = await User.findOne({ refreshToken: req.cookies.refreshToken });
+        }
+
+        if (!userRecord) {
+            return res.status(400).json({ success: false, message: 'User not found or no refresh token' });
+        }
+
+        const refreshToken = userRecord.refreshToken;
+        if (!refreshToken) {
+            return res.status(400).json({ success: false, message: 'No refresh token to revoke' });
+        }
+
+        // call Google revoke endpoint with the refresh token
+        const postData = querystring.stringify({ token: refreshToken });
+        const options = {
+            hostname: 'oauth2.googleapis.com',
+            path: '/revoke',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Content-Length': Buffer.byteLength(postData),
+            },
+        };
+
+        const revokeReq = https.request(options, (revokeRes) => {
+            let body = '';
+            revokeRes.on('data', (chunk) => (body += chunk));
+            revokeRes.on('end', async () => {
+                // remove refreshToken locally and clear cookie regardless of provider response
+                userRecord.refreshToken = undefined;
+                await userRecord.save();
+                res.clearCookie('refreshToken', { path: '/' });
+
+                if (revokeRes.statusCode === 200) {
+                    return res.json({ success: true, message: 'Google token revoked and logged out' });
+                }
+
+                return res.status(400).json({ success: false, message: 'Failed to revoke token at provider', providerCode: revokeRes.statusCode, body });
+            });
+        });
+
+        revokeReq.on('error', async (err) => {
+            userRecord.refreshToken = undefined;
+            await userRecord.save();
+            res.clearCookie('refreshToken', { path: '/' });
+            return res.status(500).json({ success: false, message: 'Failed to call provider revoke endpoint' });
+        });
+
+        revokeReq.write(postData);
+        revokeReq.end();
+    } catch (error) {
+        console.log('revokeGoogle error', error);
+        return res.status(500).json({ success: false, message: 'Internal server error' });
     }
 }
 

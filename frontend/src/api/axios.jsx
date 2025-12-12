@@ -75,6 +75,7 @@ api.interceptors.response.use(
         localStorage.removeItem("accessToken");
         // dispatch a logout event for centralized handling
         window.dispatchEvent(new Event("authLogout"));
+        
       }
     }
 

@@ -6,8 +6,9 @@ import Register from "./Pages/Register";
 import Dashboard from "./Pages/Dashboard";
 import ProtectedRoute from "./Components/ProtectedRoute";
 import { AuthContextProvider } from "./Context/AuthContext";
-import OAuthLogin from "./Pages/OAuthLogin"
+import OAuthLogin from "./Pages/OAuthLogin";
 import Logout from "./Pages/Logout";
+import { ToastContainer } from "react-toastify";
 
 function App() {
   const DashboardLayout = () => {
@@ -26,7 +27,7 @@ function App() {
         { path: "/", element: <Login /> },
         { path: "/login", element: <Login /> },
         { path: "/register", element: <Register /> },
-        {path:'/oauth/success' , element:<OAuthLogin/>}
+        { path: "/oauth/success", element: <OAuthLogin /> },
       ],
     },
 
@@ -39,9 +40,9 @@ function App() {
           children: [{ path: "dashboard", element: <Dashboard /> }],
         },
         {
-          element:<Logout/>,
-          path:'/logout'
-        }
+          element: <Logout />,
+          path: "/logout",
+        },
       ],
     },
   ]);
@@ -50,6 +51,18 @@ function App() {
     <>
       <AuthContextProvider>
         <RouterProvider router={router} />
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick={false}
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+        />
       </AuthContextProvider>
       {/* <RouterProvider router={router} /> */}
     </>
