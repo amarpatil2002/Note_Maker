@@ -2,6 +2,7 @@ import { useContext, useState } from 'react'
 import api from "../api/axios"
 import { useNavigate ,Link} from 'react-router-dom'
 import { AuthContext } from '../Context/AuthContext'
+import { toast } from 'react-toastify'
 
 function Register() {
   const [formData , setFormData] = useState({
@@ -39,7 +40,7 @@ function Register() {
 
     } catch (error) {
       // console.log(error.response.data.message);
-      alert(error.response.data.message)
+      // alert(error.response.data.message)
        toast.error(error.response.data.message)
     }
   }

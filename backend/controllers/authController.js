@@ -55,8 +55,8 @@ exports.loginUser = async (req, res) => {
             return res.status(400).json({ success: false, message: "Invalid credentials" })
         }
 
-        const accessToken = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_ACCESS_SECRETE_KEY, { expiresIn: "1m" })
-        const refreshToken = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_REFRESH_SECRETE_KEY, { expiresIn: "5m" })
+        const accessToken = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_ACCESS_SECRETE_KEY, { expiresIn: "15m" })
+        const refreshToken = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_REFRESH_SECRETE_KEY, { expiresIn: "1d" })
 
         user.refreshToken = refreshToken
         await user.save()
@@ -95,7 +95,6 @@ exports.refreshToken = async (req, res) => {
             if (error) {
                 userRecord.refreshToken = null
                 await userRecord.save()
-
                 res.clearCookie("refreshToken" , {
                     httpOnly:true,
                     sameSite:"lax",
@@ -105,7 +104,7 @@ exports.refreshToken = async (req, res) => {
 
                 return res.status(401).json({ success: false, message: "invalid refresh token" })
             }
-            const newAccessToken = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_ACCESS_SECRETE_KEY, { expiresIn: "1m" })
+            const newAccessToken = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_ACCESS_SECRETE_KEY, { expiresIn: "15m" })
             res.json({ success: true, accessToken: newAccessToken })
         })
 

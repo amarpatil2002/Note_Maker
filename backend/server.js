@@ -9,6 +9,7 @@ const passport = require("passport")
 const session = require('express-session');
 //Important for OAuth login
 require("./config/passport"); 
+const notekeeperRoutes = require('./routes/notekeeperRoutes')
 
 const port = process.env.PORT || 8080
 const app = express()
@@ -30,9 +31,12 @@ app.use(passport.session());
 // db connection
 connectDB()
 
-
+//user authenticaton Login + OAuth routes
 app.use('/api/auth' , authRouter)
 app.use('/api/auth' , oauthRouter)
+
+//notekeeper routes
+app.use('/api', notekeeperRoutes)
 
 app.listen(port , () => {
     console.log(`Server is listening on ${port}`);

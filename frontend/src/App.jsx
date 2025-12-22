@@ -9,6 +9,8 @@ import { AuthContextProvider } from "./Context/AuthContext";
 import OAuthLogin from "./Pages/OAuthLogin";
 import Logout from "./Pages/Logout";
 import { ToastContainer } from "react-toastify";
+import Profile from "./Pages/Profile";
+import Notes from "./Pages/Notes";
 
 function App() {
   const DashboardLayout = () => {
@@ -37,7 +39,16 @@ function App() {
       children: [
         {
           element: <DashboardLayout />,
-          children: [{ path: "dashboard", element: <Dashboard /> }],
+          children: [
+            { 
+              path: "/dashboard",
+              element: <Dashboard />,
+              children:[
+                {path:'profile', element:<Profile />},
+                {path:'note' , element:<Notes />}
+              ]
+            },
+          ],
         },
         {
           element: <Logout />,

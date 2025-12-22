@@ -5,8 +5,8 @@ import { toast } from "react-toastify";
 export const AuthContext = createContext({
   user: null,
   loading: true,
-  login: () => {},
-  register: () => {},
+  login: (user) => {},
+  register: (user) => {},
   logout: () => {},
 });
 
@@ -24,7 +24,7 @@ export const AuthContextProvider = ({ children }) => {
 
       } catch (error) {
         clearAccessToken();
-        setUser(null);
+        setUser(null);  
       } finally {
         setLoading(false);
       }
