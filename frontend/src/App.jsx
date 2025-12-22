@@ -11,6 +11,7 @@ import Logout from "./Pages/Logout";
 import { ToastContainer } from "react-toastify";
 import Profile from "./Pages/Profile";
 import Notes from "./Pages/Notes";
+import NoteContextProvider from './Context/NoteContext'
 
 function App() {
   const DashboardLayout = () => {
@@ -61,6 +62,7 @@ function App() {
   return (
     <>
       <AuthContextProvider>
+        <NoteContextProvider >
         <RouterProvider router={router} />
         <ToastContainer
           position="top-right"
@@ -74,6 +76,7 @@ function App() {
           pauseOnHover
           theme="light"
         />
+        </NoteContextProvider>
       </AuthContextProvider>
       {/* <RouterProvider router={router} /> */}
     </>

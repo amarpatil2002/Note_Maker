@@ -77,6 +77,7 @@ exports.loginUser = async (req, res) => {
     }
 }
 
+
 exports.refreshToken = async (req, res) => {
     try {
         // console.log(req.cookies);
@@ -192,6 +193,25 @@ exports.revokeGoogle = async (req, res) => {
     } catch (error) {
         console.log('revokeGoogle error', error);
         return res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+}
+
+
+exports.getUser = async(req,res) => {
+    try {
+        const userId = req.user.id
+
+        if(!userId){
+            res.status(401).json({success:false, message:"Unauthorized user"})
+        }
+
+        const user = await User.findById({_id:userId})
+
+        res.status(200).json({success:true ,message:"fetch data successfully" , user})
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({success:false , message:"Internal server error"})
     }
 }
 

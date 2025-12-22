@@ -17,7 +17,6 @@ export const AuthContextProvider = ({ children }) => {
   useEffect(() => {
     const checkLogin = async () => {
       try {
-        
         const res = await api.post("/refresh-token");
         setAccessToken(res.data.accessToken);
         setUser(res.data.user);
@@ -32,6 +31,17 @@ export const AuthContextProvider = ({ children }) => {
 
     checkLogin();
   }, []);
+
+  useEffect(() => {
+
+    const getUser = async() => {
+      const res = await api.get('/getuser')
+      setUser(res.data.user)
+      // console.log(res);
+    }
+
+    getUser()
+  } , [])
 
   const login = async (formData) => {
     const res = await api.post("/login", formData);

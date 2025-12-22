@@ -66,7 +66,7 @@ export default function Dashboard() {
       </aside>
 
       {/* ================= MAIN CONTENT ================= */}
-      <main className="flex-1 p-10">
+      <main className="flex-1">
         <Outlet /> {/* Child routes will render here */}
       </main>
     </div>

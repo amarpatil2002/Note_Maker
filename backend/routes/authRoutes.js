@@ -1,5 +1,5 @@
 const express = require("express")
-const { registerUser, loginUser, refreshToken, dashboard, logout, revokeGoogle } = require("../controllers/authController")
+const { registerUser, loginUser, refreshToken, dashboard, logout, revokeGoogle, getUser } = require("../controllers/authController")
 const verifyToken = require('../middlware/authMiddleware')
 
 const router = express.Router()
@@ -10,6 +10,7 @@ router.post('/refresh-token' , refreshToken)
 router.post('/logout' , logout)
 router.post('/revoke-google', revokeGoogle)
 
+router.get('/getuser' , verifyToken , getUser)
 router.get('/dashboard',verifyToken , dashboard)
 
 module.exports = router

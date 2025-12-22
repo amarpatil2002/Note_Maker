@@ -1,4 +1,3 @@
-const { mongo } = require("mongoose");
 const notesModel = require("../models/noteKeeperModel");
 const mongoose = require("mongoose");
 const userModel = require("../models/userAuthModel");
@@ -16,6 +15,11 @@ exports.createNotes = async (req, res) => {
         if (!title || !description) {
             return res.status(400).json({ sucess: false, message: "All fileds are required" })
         }
+
+        // const duplicateTitle = await notesModel.findOne({userId,title})
+        // if(duplicateTitle){
+        //     return res.status(400).json({success:false,message:"Note title already exists"})
+        // }
 
         const userNotes = new notesModel({
             userId: userId,
@@ -127,6 +131,7 @@ exports.getAllNotes = async(req,res) => {
         }
 
         const allNotes = await notesModel.find({userId})
+        console.log(allNotes);
 
         return res.status(200).json({success:true,message:"fetched all notes" , allNotes})
 

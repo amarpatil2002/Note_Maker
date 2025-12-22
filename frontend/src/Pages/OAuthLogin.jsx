@@ -1,6 +1,7 @@
 import React from 'react'
 import { useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import api from '../api/axios'
 
 function OAuthLogin() {
 
